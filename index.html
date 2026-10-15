@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Himalayan Flood Intelligence Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#eef1f6;--card:#fff;--ink:#1c2338;--mute:#5d6682;--line:#d9deea;--hd:#262b45;--land:#ece9dc;--flood:#3b8fd4;--red:#d6453d;--amb:#e9a21b;--grn:#2f9d5b;--gry:#8b93a7;--b:border-box;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14172a;--card:#1f2440;--ink:#eef0f8;--mute:#a1a9c4;--line:#323965;--hd:#0f1224;--land:#2a2f4d}}
+:root[data-theme="dark"]{--bg:#14172a;--card:#1f2440;--ink:#eef0f8;--mute:#a1a9c4;--line:#323965;--hd:#0f1224;--land:#2a2f4d}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Archivo,system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--hd);z-index:10}
+header{background:var(--hd);color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+header h1{font-size:17px;margin:0;font-weight:800}header small{opacity:.7;font-size:11px}
+main{padding:10px;display:grid;gap:10px;max-width:1200px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;min-width:0}
+h2{font-size:13px;margin:0 0 8px;font-weight:800}
+.ctl{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}
+label{font-size:11px;color:var(--mute);display:block}
+input{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+button{padding:9px 14px;border:0;border-radius:6px;background:var(--flood);color:#fff;font:600 13px Archivo,system-ui,sans-serif;cursor:pointer}
+button.alt{background:var(--hd);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.k{border-radius:8px;padding:10px;background:var(--hd);color:#fff}
+.k b{font-size:24px;font-weight:800;display:block;line-height:1.1}.k span{font-size:11px;opacity:.8}
+.k.r{background:var(--red)}.k.a{background:var(--amb);color:#1c2338}.k.g{background:var(--grn)}.k.s{background:var(--flood)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{padding:5px 10px;border-radius:20px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:12px}
+.chip.on{background:var(--hd);color:#fff;border-color:var(--hd)}
+svg{width:100%;height:auto;display:block;border-radius:6px;background:var(--land)}
+.vil{cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--mute);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+table{width:100%;border-collapse:collapse;font-size:12px}td{padding:4px 0;border-bottom:1px solid var(--line);vertical-align:top}td:first-child{color:var(--mute);width:42%}
+.pill{display:inline-block;padding:2px 9px;border-radius:12px;color:#fff;font-weight:600;font-size:12px}
+.list{display:grid;gap:5px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-size:13px;color:var(--ink);text-align:left;font-weight:400;width:100%}
+.row.sel{outline:2px solid var(--flood)}
+#vp .why{background:var(--bg);border-left:4px solid var(--gry);padding:8px 10px;border-radius:4px;margin-top:8px}
+pre{white-space:pre-wrap;font-size:11px;background:var(--bg);padding:8px;border-radius:6px;max-height:220px;overflow:auto}
+@media(min-width:900px){main{grid-template-columns:1.6fr 1fr}.wide{grid-column:1/-1}.kpis{grid-template-columns:repeat(4,1fr)}}
+</style></head><body>
+<header><div><h1>Himalayan Flood Intelligence</h1><small>Glacial-lake and flash-flood impact, landslide-aware access analysis · simulated demo data</small></div></header>
+<main>
+<section class="card wide"><h2>Area and event</h2>
+<div class="ctl"><div><label for="area">Area of interest</label><input id="area" list="al" value="Teesta Valley, Sikkim"><datalist id="al"><option>Teesta Valley, Sikkim<option>Mandakini Valley, Uttarakhand<option>Parvati Valley, Himachal Pradesh<option>Langtang Valley, Nepal<option>Hunza Valley, Gilgit-Baltistan</datalist></div>
+<div><label for="date">Event date</label><input id="date" type="date" value="2026-10-12"></div>
+<button id="go">Analyse</button></div></section>
+
+<section class="wide"><div class="kpis" id="kpis"></div></section>
+
+<section class="card"><h2>Valley flood map</h2><div class="chips" id="chips"></div><div id="map"></div>
+<div class="legend"><span><i style="background:var(--flood)"></i>Flood extent</span><span><i style="background:var(--red)"></i>Affected</span><span><i style="background:var(--amb)"></i>Partly cut off</span><span><i style="background:var(--grn)"></i>Connected</span><span><i style="background:var(--gry)"></i>Unaffected building</span></div></section>
+
+<div style="display:grid;gap:10px;align-content:start;min-width:0">
+<section class="card" id="vp"><h2>Village connectivity</h2><p style="color:var(--mute);margin:0">Tap a village on the map or in the list below.</p></section>
+<section class="card"><h2>Settlements</h2><div class="list" id="vl"></div></section>
+</div>
+
+<section class="card"><h2>Satellite acquisition</h2><table id="sat"></table></section>
+<section class="card"><h2>Towns and hospitals</h2><div class="list" id="th"></div></section>
+<section class="card"><h2>Affected roads and bridges</h2><div class="list" id="rb"></div></section>
+<section class="card"><h2>Situation report</h2><p style="margin:0 0 8px;color:var(--mute)">Plain-text report of all current results.</p><button class="alt" id="dl">Download situation report</button><pre id="pv" hidden></pre></section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const hash=s=>{let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
+const rng=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const KM=.1;
+const RV=[[50,0],[65,50],[60,100],[105,135],[150,170],[140,220],[200,255],[270,275],[400,285]];
+const N={Q1:[78,20,'Sakar'],Q2:[84,75],Q3:[112,112],Q4:[160,145,'Dhangar'],Q5:[165,200],Q6:[225,240],Q7:[310,255],Q8:[385,262,'Lower Rangri'],P1:[38,50],P2:[40,108],P3:[80,150],P4:[125,205,'Tashi Bazaar'],P5:[170,262],P6:[250,292],P7:[340,298]};
+const E=[['Q1','Q2','Valley Rd East'],['Q2','Q3','Valley Rd East'],['Q3','Q4','Valley Rd East'],['Q4','Q5','Valley Rd East'],['Q5','Q6','Valley Rd East'],['Q6','Q7','Valley Rd East'],['Q7','Q8','Valley Rd East'],['P1','P2','Valley Rd West'],['P2','P3','Valley Rd West'],['P3','P4','Valley Rd West'],['P4','P5','Valley Rd West'],['P5','P6','Valley Rd West'],['P6','P7','Valley Rd West'],['Q2','P1','Suspension Bridge B1',0],['Q3','P3','Suspension Bridge B2',1],['Q5','P4','Suspension Bridge B3',2],['Q6','P6','Suspension Bridge B4',3],['Q7','P7','Suspension Bridge B5',4]];
+E.forEach(e=>e.len=Math.hypot(N[e[0]][0]-N[e[1]][0],N[e[0]][1]-N[e[1]][1])*KM);
+const VIL=[['Lingdum',20,25],['Phyang',130,45],['Kabi',22,150],['Rongli',150,100],['Sirwani',205,125],['Dentam',95,190],['Hee Gaon',215,190],['Tarey',265,215],['Khechu',215,285],['Sombaria',335,225]];
+const HOS=[['Dhangar District Hospital','Q4'],['Lower Rangri Civil Hospital','Q8']];
+const TOWN=['Q1','Q4','P4','Q8'];
+const COL={'Connected':'var(--grn)','Partly cut off':'var(--amb)','Cut off':'var(--red)','Inundated':'var(--red)'};
+const LAY={flood:'Flood extent',bld:'Buildings',road:'Roads and bridges',vil:'Villages',twn:'Towns and hospitals'};
+let LS=new Set(),S=null,sel=-1,on={flood:1,bld:1,road:1,vil:1,twn:1};
+
+function dj(src,bl){const d={},p={};for(const k in N)d[k]=Infinity;d[src]=0;const q=new Set(Object.keys(N));
+ while(q.size){let u=null;for(const k of q)if(u===null||d[k]<d[u])u=k;if(d[u]===Infinity)break;q.delete(u);
+  E.forEach((e,i)=>{if(bl.has(i))return;const v=e[0]===u?e[1]:e[1]===u?e[0]:null;if(!v)return;const nd=d[u]+e.len;if(nd<d[v]){d[v]=nd;p[v]=[u,i]}})}
+ return{d,p}}
+const pth=(p,t)=>{const o=[];while(p[t]){o.push(p[t][1]);t=p[t][0]}return o};
+const nm=i=>E[i][2]+(LS.has(i)?' (landslide)':'');
+
+function run(){
+ const area=$('#area').value.trim()||'Unnamed area',date=$('#date').value||'2026-10-12';
+ const r=rng(hash(area+date)),sev=.2+.75*r(),w=5+17*sev;
+ const dense=[];for(let i=0;i<RV.length-1;i++){const a=RV[i],b=RV[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);for(let t=0;t<L;t+=6)dense.push([a[0]+(b[0]-a[0])*t/L,a[1]+(b[1]-a[1])*t/L])}
+ const C=dense.map(p=>[p[0],p[1],w*(.75+.5*r())]);
+ const inF=(x,y)=>C.some(c=>(x-c[0])**2+(y-c[1])**2<c[2]**2);
+ const thr=[.25,.4,.55,.7,.85].map(t=>t+(r()-.5)*.3),aff=new Set(),ls=new Set();LS=ls;
+ E.forEach((e,i)=>{let a=false;if(e[3]!==undefined)a=sev>thr[e[3]];else{const[A,B]=[N[e[0]],N[e[1]]];for(let t=.15;t<=.85;t+=.1)if(inF(A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t)){a=true;break}}if(!a&&e[3]===undefined&&r()<.08+.2*sev){a=true;ls.add(i)}if(a)aff.add(i)});
+ // buildings
+ const B=[];const seeds=[...VIL.map(v=>[v[1],v[2],16+r()*10]),...TOWN.map(k=>[N[k][0],N[k][1],24])];
+ seeds.forEach(s=>{const n=s[2]>20?36:14+Math.floor(r()*12);for(let i=0;i<n;i++){const a=r()*6.283,d=Math.sqrt(r())*s[2],x=s[0]+Math.cos(a)*d,y=s[1]+Math.sin(a)*d;if(x>2&&x<398&&y>2&&y<298)B.push([x,y,inF(x,y)])}});
+ // villages
+ const keys=Object.keys(N);
+ const V=VIL.map(v=>{const o={name:v[0],x:v[1],y:v[2],pop:Math.round(120+r()*1700)};
+  let nn=keys[0],nd=1e9;keys.forEach(k=>{const d=Math.hypot(N[k][0]-v[1],N[k][1]-v[2]);if(d<nd){nd=d;nn=k}});
+  o.node=nn;o.spur=nd*KM;o.flooded=inF(v[1],v[2]);
+  const sf=inF((N[nn][0]+v[1])/2,(N[nn][1]+v[2])/2);o.slide=!sf&&r()<.12+.28*sev;o.spurBad=sf||o.slide;
+  const A0=dj(nn,new Set()),A1=o.spurBad?null:dj(nn,aff);
+  let hb=Infinity,hi=0;HOS.forEach((h,i)=>{if(A0.d[h[1]]<hb){hb=A0.d[h[1]];hi=i}});
+  const hn=HOS[hi][1],hr=A1?Math.min(...HOS.map(h=>A1.d[h[1]])):Infinity,tr=A1?Math.min(...TOWN.map(t=>A1.d[t])):Infinity;
+  const bp=pth(A0.p,hn).filter(i=>aff.has(i)).map(nm);o.hosp=HOS[hi][0];o.hb=hb+o.spur;
+  if(o.flooded){o.status='Inundated';o.why='Village centre lies inside the detected flood extent, so residents cannot leave by road.'}
+  else if(o.spurBad){o.status='Cut off';o.why=o.slide?'A landslide has buried the only access road between the village and the valley road.':'The only access road between the village and the valley road is inundated.'}
+  else if(hr===Infinity&&tr===Infinity){o.status='Cut off';o.why='Every route to a town or hospital crosses flooded segments'+(bp.length?' ('+bp.join(', ')+')':'')+'. No dry alternative exists.'}
+  else if(hr===Infinity){o.status='Partly cut off';o.why='A town is reachable, but no dry route to any hospital remains. Blocked: '+(bp.join(', ')||'hospital approaches')+'.'}
+  else if(hr>hb*1.5+1){o.status='Partly cut off';o.why='Shortest route to '+o.hosp+' is blocked ('+bp.join(', ')+'). Detour is '+(hr-hb).toFixed(1)+' km longer ('+Math.round((hr/hb-1)*100)+'% more).'}
+  else{o.status='Connected';o.why='Dry route to '+o.hosp+' (about '+(hr+o.spur).toFixed(1)+' km). No flagged road or bridge on the route.'}
+  return o});
+ // hospitals and towns
+ const bl=aff;const reach=k=>V.length&&dj(k,bl);
+ const hs=HOS.map(h=>{const a=reach(h[1]),ok=keys.filter(k=>a.d[k]<Infinity).length;const fl=inF(N[h[1]][0],N[h[1]][1]);return{name:h[0],node:h[1],st:fl?'Flooded':ok<keys.length*.5?'Isolated':'Accessible'}});
+ const ts=TOWN.map(k=>{const a=dj(k,bl),n=keys.filter(x=>a.d[x]<Infinity).length;const fl=inF(N[k][0],N[k][1]);return{name:N[k][2],node:k,st:fl?'Flooded':n<keys.length*.5?'Isolated':'Accessible'}});
+ // area
+ let cells=0;for(let x=0;x<400;x+=4)for(let y=0;y<300;y+=4)if(inF(x+2,y+2))cells++;
+ const roads=[...aff].filter(i=>E[i][3]===undefined),bridges=[...aff].filter(i=>E[i][3]!==undefined);
+ const km=roads.reduce((s,i)=>s+E[i].len,0);
+ const t0=new Date(date+'T00:00:00Z');const fmt=(d,k)=>{const x=new Date(t0);x.setUTCDate(x.getUTCDate()+d);return x.toISOString().slice(0,10)};
+ const hh=String(4+Math.floor(r()*3)).padStart(2,'0'),mm=String(Math.floor(r()*60)).padStart(2,'0');
+ const orb=Math.floor(1+r()*174);
+ S={area,date,sev,ls:LS,C,B,V,aff,hs,ts,roads,bridges,km,
+  km2:cells*16*KM*KM,bAff:B.filter(b=>b[2]).length,
+  sat:[['Primary sensor','Sentinel-1A, C-band SAR (sees through monsoon cloud)'],['Mode and polarisation','IW, VV+VH'],['Acquisition',fmt(1)+' '+hh+':'+mm+' UTC'],['Pre-event reference',fmt(-12)+' (dry baseline)'],['Orbit / pass','Relative orbit '+orb+', '+(r()>.5?'ascending':'descending')],['Resolution','10 m ground range'],['Terrain correction','Copernicus DEM 30 m; shadow and layover masked on '+Math.round(18+r()*17)+'% of area'],['Scene ID','S1A_IW_GRDH_'+fmt(1).replace(/-/g,'')+'T'+hh+mm+'00_'+(1000+hash(area)%9000)],['Supplement','ICEYE spotlight tasked '+fmt(2)+', 1 m'],['Likely trigger',r()>.5?'Glacial lake outburst (GLOF)':'Cloudburst flash flood'],['Method','Change detection, water below -18 dB VV, slopes over 15 degrees excluded']]};
+ draw()}
+
+function draw(){
+ const s=S,cut=s.V.filter(v=>v.status==='Cut off'||v.status==='Inundated'),part=s.V.filter(v=>v.status==='Partly cut off');
+ const pop=cut.reduce((a,v)=>a+v.pop,0);
+ $('#kpis').innerHTML=[['s',s.km2.toFixed(1),'Flood extent (km²)'],['r',s.bAff+' / '+s.B.length,'Potentially affected buildings'],['a',s.roads.length+' roads · '+s.bridges.length+' / 5 bridges','Affected roads (~'+s.km.toFixed(1)+' km) and bridges'],['r',cut.length+' / '+s.V.length,'Settlements cut off (~'+pop.toLocaleString()+' people)'],['a',part.length,'Settlements partly cut off'],['',s.hs.filter(h=>h.st!=='Accessible').length+' / '+s.hs.length,'Hospitals flooded or isolated'],['a',s.ls.size,'Landslide-blocked road segments'],['g',s.V.filter(v=>v.status==='Connected').length,'Settlements connected']].map(k=>`<div class="k ${k[0]}"><b>${k[1]}</b><span>${k[2]}</span></div>`).join('');
+ $('#chips').innerHTML=Object.keys(LAY).map(k=>`<button class="chip ${on[k]?'on':''}" data-k="${k}">${LAY[k]}</button>`).join('');
+ $('#chips').querySelectorAll('button').forEach(b=>b.onclick=()=>{on[b.dataset.k]^=1;draw()});
+ let m=`<svg viewBox="0 0 400 300" role="img" aria-label="Flood map">`;
+ for(let k=-5;k<=5;k++)m+=`<path d="M${RV.map(p=>(p[0]+k*30)+' '+(p[1]-Math.abs(k)*6)).join('L')}" fill="none" stroke="var(--line)" stroke-width=".7" opacity=".8"/>`;m+=`<ellipse cx="52" cy="6" rx="16" ry="7" fill="var(--flood)" opacity=".8"/><text x="72" y="10" font-size="6.5" fill="var(--ink)">Glacial lake</text>`;
+ if(on.flood)m+=`<g opacity=".55" fill="var(--flood)">${s.C.map(c=>`<circle cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" r="${c[2].toFixed(1)}"/>`).join('')}</g><path d="M${RV.map(p=>p.join(' ')).join('L')}" fill="none" stroke="var(--flood)" stroke-width="4" stroke-linecap="round"/>`;
+ if(on.bld)m+=s.B.map(b=>`<rect x="${(b[0]-1.1).toFixed(1)}" y="${(b[1]-1.1).toFixed(1)}" width="2.4" height="2.4" fill="${b[2]?'var(--red)':'var(--gry)'}"/>`).join('');
+ if(on.road){E.forEach((e,i)=>{const a=N[e[0]],b=N[e[1]],f=s.aff.has(i);m+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${f?'var(--red)':'#b08a5a'}" stroke-width="${f?2:1.4}" ${f?'stroke-dasharray="4 2"':''}/>`;
+  if(e[3]!==undefined)m+=`<rect x="${(a[0]+b[0])/2-4}" y="${(a[1]+b[1])/2-4}" width="8" height="8" rx="1.5" fill="${f?'var(--red)':'var(--grn)'}" stroke="#fff" stroke-width="1"/><text x="${(a[0]+b[0])/2+7}" y="${(a[1]+b[1])/2+3}" font-size="6.5" fill="var(--ink)">B${e[3]+1}</text>`})}
+ if(on.twn){TOWN.forEach(k=>{const n=N[k];m+=`<circle cx="${n[0]}" cy="${n[1]}" r="4" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5"/><text x="${n[0]+7}" y="${n[1]+10}" font-size="7.5" font-weight="700" fill="var(--ink)">${n[2]}</text>`});
+  HOS.forEach(h=>{const n=N[h[1]];m+=`<rect x="${n[0]+5}" y="${n[1]-14}" width="9" height="9" rx="2" fill="#d6453d" stroke="#fff"/><text x="${n[0]+9.5}" y="${n[1]-7}" font-size="7" font-weight="800" fill="#fff" text-anchor="middle">H</text>`})}
+ if(on.vil)s.V.forEach((v,i)=>{m+=`<g class="vil" data-i="${i}"><circle cx="${v.x}" cy="${v.y}" r="${i===sel?9:7}" fill="${COL[v.status]}" stroke="${i===sel?'var(--ink)':'#fff'}" stroke-width="${i===sel?2.2:1.4}"/><text x="${v.x}" y="${v.y-11}" font-size="7" text-anchor="middle" fill="var(--ink)" font-weight="600">${v.name}</text></g>`});
+ $('#map').innerHTML=m+'</svg>';
+ $('#map').querySelectorAll('.vil').forEach(g=>g.onclick=()=>pick(+g.dataset.i));
+ const ord={'Inundated':0,'Cut off':0,'Partly cut off':1,'Connected':2};
+ $('#vl').innerHTML=s.V.map((v,i)=>[v,i]).sort((a,b)=>ord[a[0].status]-ord[b[0].status]).map(([v,i])=>`<button class="row ${i===sel?'sel':''}" data-i="${i}"><span>${v.name}</span><span class="pill" style="background:${COL[v.status]};color:${v.status==='Partly cut off'?'#1c2338':'#fff'}">${v.status}</span></button>`).join('');
+ $('#vl').querySelectorAll('button').forEach(b=>b.onclick=()=>pick(+b.dataset.i));
+ $('#sat').innerHTML=s.sat.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+ const stc=t=>t==='Accessible'?'var(--grn)':'var(--red)';
+ $('#th').innerHTML=[...s.hs.map(h=>[h.name+' (hospital)',h.st]),...s.ts.map(t=>[t.name+' (town)',t.st])].map(x=>`<div class="row"><span>${x[0]}</span><span class="pill" style="background:${stc(x[1])}">${x[1]}</span></div>`).join('');
+ const af=[...s.aff];$('#rb').innerHTML=af.length?af.map(i=>`<div class="row"><span>${nm(i)}</span><span>${E[i][3]!==undefined?'Overtopped':LS.has(i)?'Landslide':'Inundated'} · ${E[i].len.toFixed(1)} km</span></div>`).join(''):'<p style="margin:0;color:var(--mute)">No road segments or bridges flagged.</p>';
+ if(sel>=0)vp();
+ $('#pv').textContent=sitrep()}
+
+function pick(i){sel=i;draw();$('#vp').scrollIntoView({behavior:'smooth',block:'nearest'})}
+function vp(){const v=S.V[sel];$('#vp').innerHTML=`<h2>${v.name}</h2><span class="pill" style="background:${COL[v.status]};color:${v.status==='Partly cut off'?'#1c2338':'#fff'}">${v.status}</span><table style="margin-top:8px"><tr><td>Population (est.)</td><td>${v.pop.toLocaleString()}</td></tr><tr><td>Nearest hospital</td><td>${v.hosp}, ${v.hb.toFixed(1)} km when dry</td></tr></table><div class="why" style="border-color:${COL[v.status]}"><b>Why flagged</b><br>${v.why}</div>`}
+
+function sitrep(){const s=S,L=['HIMALAYAN FLOOD SITUATION REPORT','Area: '+s.area,'Event date: '+s.date,'Generated: '+new Date().toISOString().slice(0,16)+' UTC','Data: simulated demonstration data','','SATELLITE ACQUISITION',...s.sat.map(r=>'  '+r[0]+': '+r[1]),'','SUMMARY',
+ '  Flood extent: '+s.km2.toFixed(1)+' km2','  Potentially affected buildings: '+s.bAff+' of '+s.B.length,'  Affected road segments: '+s.roads.length+' (~'+s.km.toFixed(1)+' km)','  Affected bridges: '+s.bridges.length+' of 5',
+ '  Settlements cut off: '+s.V.filter(v=>v.status==='Cut off'||v.status==='Inundated').length+' of '+s.V.length,'','HOSPITALS AND TOWNS',...s.hs.map(h=>'  '+h.name+': '+h.st),...s.ts.map(t=>'  '+t.name+': '+t.st),'','ROADS AND BRIDGES',...[...s.aff].map(i=>'  '+nm(i)+': '+(E[i][3]!==undefined?'overtopped':LS.has(i)?'landslide':'inundated')),'','SETTLEMENTS']
+ s.V.forEach(v=>L.push('  '+v.name+' (pop ~'+v.pop+'): '+v.status+'. '+v.why));return L.join('\n')}
+
+$('#go').onclick=()=>{sel=-1;$('#vp').innerHTML='<h2>Village connectivity</h2><p style="color:var(--mute);margin:0">Tap a village on the map or in the list below.</p>';run()};
+$('#dl').onclick=()=>{const t=sitrep(),fn='sitrep-'+S.area.replace(/\W+/g,'-').toLowerCase()+'-'+S.date+'.txt';
+ const blob=new Blob([t],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=fn;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+ $('#pv').hidden=false;$('#pv').textContent=t};
+run();
+</script></body></html>
